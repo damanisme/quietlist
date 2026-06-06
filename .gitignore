@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+.env
+.env.local
+*.tar.gz
+Task-Master-nextjs-project.zip
+.DS_Store
+.playwright-mcp
+main.png
