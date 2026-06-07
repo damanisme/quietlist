@@ -12,7 +12,7 @@ const context = await browser.newContext({
 const page = await context.newPage();
 // Fresh context => empty localStorage => the built-in default tasks show.
 await page.goto(url, { waitUntil: 'networkidle' });
-await page.waitForSelector('text=Task Master');
+await page.waitForSelector('text=Quietlist');
 await page.waitForTimeout(800);
 // Crop tight to the app card instead of the vertically-centered full page.
 const card = page.locator('div.max-w-2xl').first();

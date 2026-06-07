@@ -1,15 +1,15 @@
-# ✨ Task Master
+# ✨ Quietlist
 
-A fast, **privacy-first task manager** that runs entirely in your browser — no account,
-no tracking, no database. Your tasks live in your own `localStorage`, not on someone
-else's server.
+**The to-do list that keeps quiet — no account, no cloud.** A fast, privacy-first task
+manager that runs entirely in your browser. Your tasks live in your own `localStorage`,
+not on someone else's server.
 
 It also has an **opt-in AI mode**: bring your own key (or use a local model) and turn any
 goal into a checklist of subtasks with one click.
 
-> Built with Next.js 14 + React + Tailwind. Deploys to Vercel in one click.
+**[▶ Live demo](https://quietlist.vercel.app)** · Built with Next.js 14 + React + Tailwind.
 
-![Task Master](docs/screenshot.png)
+![Quietlist](docs/screenshot.png)
 
 ---
 
