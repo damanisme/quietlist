@@ -1,4 +1,4 @@
-# ✨ Quietlist
+# ✨ QuietList
 
 **The to-do list that keeps quiet — no account, no cloud.** A fast, privacy-first task
 manager that runs entirely in your browser. Your tasks live in your own `localStorage`,
@@ -9,7 +9,7 @@ goal into a checklist of subtasks with one click.
 
 **[▶ Live demo](https://quietlist.vercel.app)** · Built with Next.js 14 + React + Tailwind.
 
-![Quietlist](docs/screenshot.png)
+![QuietList](docs/screenshot.png)
 
 ---
 
