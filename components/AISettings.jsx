@@ -130,26 +130,25 @@ export default function AISettings({ open, onClose, settings, onSave, darkMode, 
           </div>
         )}
 
-        {/* Model */}
+        {/* Model — pick a suggestion or type any model ID (future-proof) */}
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Model {current?.models.length ? '' : '(auto)'}</label>
-          {current?.models.length ? (
-            <select
-              value={model || current.models[0]}
-              onChange={(e) => setModel(e.target.value)}
-              className={`w-full p-2 rounded border ${field}`}
-            >
-              {current.models.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
-          ) : (
-            <input
-              type="text"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              placeholder="default"
-              className={`w-full p-2 rounded border ${field}`}
-            />
+          <label className="block text-sm font-medium mb-1">
+            Model <span className="opacity-50 font-normal">(pick or type any ID)</span>
+          </label>
+          <input
+            type="text"
+            list={`models-${current?.id}`}
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            placeholder={current?.models?.[0] || 'default'}
+            className={`w-full p-2 rounded border ${field}`}
+          />
+          {current?.models?.length > 0 && (
+            <datalist id={`models-${current.id}`}>
+              {current.models.map((m) => <option key={m} value={m} />)}
+            </datalist>
           )}
+          <p className="text-xs opacity-60 mt-1">Leave blank to use the provider default.</p>
         </div>
 
         {localUnavailable && (

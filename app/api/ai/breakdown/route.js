@@ -134,7 +134,7 @@ async function callOpenAICompat(url, prompt, model, key, defModel) {
 }
 
 async function callGemini(prompt, model, key) {
-  const m = model || 'gemini-2.0-flash';
+  const m = model || 'gemini-3.5-flash';
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`,
     {
@@ -177,13 +177,13 @@ export async function POST(req) {
       case 'openai':
         raw = await callOpenAICompat(
           'https://api.openai.com/v1/chat/completions',
-          prompt, model, apiKey, 'gpt-4o-mini'
+          prompt, model, apiKey, 'gpt-5.4-mini'
         );
         break;
       case 'groq':
         raw = await callOpenAICompat(
           'https://api.groq.com/openai/v1/chat/completions',
-          prompt, model, apiKey, 'llama-3.3-70b-versatile'
+          prompt, model, apiKey, 'openai/gpt-oss-120b'
         );
         break;
       case 'gemini':
