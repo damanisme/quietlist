@@ -9,7 +9,7 @@ goal into a checklist of subtasks with one click.
 
 **[▶ Live demo](https://quietlist.vercel.app)** · Built with Next.js 14 + React + Tailwind.
 
-![QuietList](docs/screenshot.png)
+![QuietList demo — break a goal into subtasks with AI](docs/demo.gif)
 
 ---
 
