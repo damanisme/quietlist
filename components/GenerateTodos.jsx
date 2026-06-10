@@ -130,7 +130,7 @@ export default function GenerateTodos({ open, onClose, aiSettings, configured, d
               placeholder="GitHub token (only for private repos)"
               className={`w-full p-2 rounded border mt-2 ${field}`}
             />
-            <p className="text-xs opacity-60 mt-1">Reads the README, file tree, and open issues.</p>
+            <p className="text-xs opacity-60 mt-1">Reads the README, docs/notes (.md), file tree, and open issues to understand the project.</p>
           </div>
         )}
 
