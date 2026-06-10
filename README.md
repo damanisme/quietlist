@@ -17,6 +17,7 @@ goal into a checklist of subtasks with one click.
 
 - 🔒 **Zero backend, zero account** — works fully offline, data never leaves your device
 - ✨ **AI subtask breakdown** — type a goal, get actionable subtasks (opt-in)
+- 📂 **Generate a to-do list from a project** — point it at a **local folder** (private, via Ollama/Codex) or a **GitHub repo**, and AI proposes the tasks from the README, file tree, TODOs, and open issues
 - 🧩 **Tasks + subtasks** with priorities, search, and Markdown notes
 - 🍅 **Built-in Pomodoro timer** — focus a session on any task
 - 🖱️ **Drag-and-drop** reordering (mouse + touch)

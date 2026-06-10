@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
 import AISettings from './AISettings';
+import GenerateTodos from './GenerateTodos';
 import { getProvider } from '../lib/aiProviders';
 
 // Default tasks when no localStorage data is available
@@ -122,6 +123,7 @@ function TaskMasterApp() {
   const [aiStatus, setAiStatus] = useState(null); // { codex, ollama }
   const [aiLoadingId, setAiLoadingId] = useState(null); // task id (or '__new__') currently generating
   const [aiMessage, setAiMessage] = useState(null); // { type: 'error'|'success', text }
+  const [generateOpen, setGenerateOpen] = useState(false);
   
   // Timer durations (in minutes)
   const timerDurations = {
@@ -451,6 +453,28 @@ function TaskMasterApp() {
     const goal = newTask;
     const created = addTask();
     if (created) await aiBreakdown(goal, created.id);
+  };
+
+  // Append several AI-generated tasks at once (from the project generator)
+  const addTasksFromList = (texts) => {
+    if (!texts || !texts.length) return;
+    setTasks(prev => {
+      let maxOrder = prev.length > 0
+        ? Math.max(...prev.map(t => (t.order !== undefined ? t.order : 0)))
+        : -1;
+      const created = texts.map((text, i) => ({
+        id: `${Date.now()}-${i}`,
+        text,
+        description: '',
+        done: false,
+        priority: 'medium',
+        subtasks: [],
+        order: ++maxOrder,
+        showNotes: false,
+      }));
+      return [...prev, ...created];
+    });
+    setAiMessage({ type: 'success', text: `Added ${texts.length} tasks from the project` });
   };
 
   // Toggle task completion with animation
@@ -1090,6 +1114,18 @@ function TaskMasterApp() {
         darkMode={darkMode}
         status={aiStatus}
       />
+
+      {/* Generate a to-do list from a project */}
+      <GenerateTodos
+        open={generateOpen}
+        onClose={() => setGenerateOpen(false)}
+        aiSettings={aiSettings}
+        configured={aiConfigured()}
+        darkMode={darkMode}
+        onAddTasks={addTasksFromList}
+        onOpenSettings={() => { setGenerateOpen(false); setAiSettingsOpen(true); }}
+        status={aiStatus}
+      />
       
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
@@ -1306,6 +1342,13 @@ function TaskMasterApp() {
               {aiLoadingId ? '⏳ Thinking…' : '✨ Add + AI Subtasks'}
             </button>
           </div>
+          <button
+            onClick={() => (aiConfigured() ? setGenerateOpen(true) : setAiSettingsOpen(true))}
+            className="mt-1 px-4 py-2 border-2 border-indigo-500 text-indigo-500 rounded btn-animation text-sm font-medium hover:bg-indigo-50"
+            title="Generate a whole to-do list from a folder or GitHub repo"
+          >
+            📂 Generate to-do list from a project
+          </button>
         </div>
       </div>
 
