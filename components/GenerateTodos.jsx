@@ -91,10 +91,11 @@ export default function GenerateTodos({ open, onClose, aiSettings, configured, d
               type="text"
               value={pathInput}
               onChange={(e) => setPathInput(e.target.value)}
-              placeholder="/home/you/projects/my-app  (blank = this app's folder)"
+              placeholder="/home/you/projects/app · C:\Users\you\app · \\wsl.localhost\… (blank = this app's folder)"
               className={`w-full p-2 rounded border ${field}`}
             />
             <p className="text-xs opacity-60 mt-1">
+              Windows (<code>C:\…</code>, <code>\\wsl.localhost\…</code>) or Linux paths both work.
               Reads the local folder on the machine running this app. {isLocalProvider
                 ? 'Your local provider keeps it fully private.'
                 : '⚠️ A cloud provider receives a digest of the folder — pick Ollama/Codex in AI settings to keep it private.'}

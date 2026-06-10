@@ -21,8 +21,22 @@ function gitLog(dir) {
 
 // ---- local folder ------------------------------------------------------
 
+// Accept Windows-style paths and convert to the Linux paths this (WSL) server reads:
+//   \\wsl.localhost\Ubuntu\home\rp\x  ->  /home/rp/x
+//   \\wsl$\Ubuntu\home\rp\x           ->  /home/rp/x
+//   C:\Users\rp\app                   ->  /mnt/c/Users/rp/app
+function toLinuxPath(p) {
+  let s = (p || '').trim().replace(/^["']|["']$/g, '');
+  if (!s) return s;
+  s = s.replace(/^\\\\wsl(?:\.localhost|\$)\\[^\\]+\\?/i, '/'); // UNC WSL share -> root
+  s = s.replace(/^([A-Za-z]):[\\/]/, (_, d) => `/mnt/${d.toLowerCase()}/`); // drive letter
+  s = s.replace(/\\/g, '/'); // flip remaining backslashes
+  return s;
+}
+
 export async function folderDigest(inputPath) {
-  const dir = path.resolve(inputPath && inputPath.trim() ? inputPath.trim() : process.cwd());
+  const cleaned = toLinuxPath(inputPath);
+  const dir = path.resolve(cleaned && cleaned.trim() ? cleaned.trim() : process.cwd());
   const st = await stat(dir).catch(() => null);
   if (!st || !st.isDirectory()) throw new Error(`Not a directory: ${dir}`);
 
