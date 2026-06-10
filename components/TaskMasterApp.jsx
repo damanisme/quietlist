@@ -455,26 +455,28 @@ function TaskMasterApp() {
     if (created) await aiBreakdown(goal, created.id);
   };
 
-  // Append several AI-generated tasks at once (from the project generator)
-  const addTasksFromList = (texts) => {
+  // Add an AI-generated project to-do list as ONE parent task with the items as subtasks
+  const addTasksFromList = (texts, parentLabel) => {
     if (!texts || !texts.length) return;
+    const id = Date.now().toString();
     setTasks(prev => {
-      let maxOrder = prev.length > 0
+      const maxOrder = prev.length > 0
         ? Math.max(...prev.map(t => (t.order !== undefined ? t.order : 0)))
         : -1;
-      const created = texts.map((text, i) => ({
-        id: `${Date.now()}-${i}`,
-        text,
+      const parent = {
+        id,
+        text: parentLabel || 'Generated to-dos',
         description: '',
         done: false,
         priority: 'medium',
-        subtasks: [],
-        order: ++maxOrder,
+        subtasks: texts.map((text, i) => ({ id: `s${id}-${i}`, text, done: false, order: i })),
+        order: maxOrder + 1,
         showNotes: false,
-      }));
-      return [...prev, ...created];
+      };
+      return [...prev, parent];
     });
-    setAiMessage({ type: 'success', text: `Added ${texts.length} tasks from the project` });
+    setExpandedTasks(prev => ({ ...prev, [id]: true })); // expand so the subtasks show
+    setAiMessage({ type: 'success', text: `Added "${parentLabel}" with ${texts.length} subtasks` });
   };
 
   // Toggle task completion with animation

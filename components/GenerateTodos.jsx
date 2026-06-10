@@ -51,9 +51,20 @@ export default function GenerateTodos({ open, onClose, aiSettings, configured, d
     }
   }
 
+  // Name the parent task after the project being scanned
+  function parentLabel() {
+    if (source === 'github') {
+      const r = repoInput.trim().replace(/\.git$/, '').split('/').filter(Boolean).slice(-2).join('/');
+      return r ? `🐙 ${r}` : '🐙 GitHub repo';
+    }
+    const p = pathInput.trim().replace(/[\\/]+$/, '');
+    const base = p ? p.split(/[\\/]/).pop() : 'this project';
+    return `📂 ${base || 'project'}`;
+  }
+
   function addSelected() {
     const picked = (results || []).filter((r) => r.checked).map((r) => r.text);
-    if (picked.length) onAddTasks(picked);
+    if (picked.length) onAddTasks(picked, parentLabel());
     onClose();
   }
 
