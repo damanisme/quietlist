@@ -9,7 +9,7 @@ goal into a checklist of subtasks with one click.
 
 **[▶ Live demo](https://quietlist.vercel.app)** · Built with Next.js 14 + React + Tailwind.
 
-![QuietList demo — break a goal into subtasks with AI](docs/demo.gif)
+![QuietList — add tasks with priorities, check them off, and focus with the built-in Pomodoro timer](docs/basics-demo.gif)
 
 ---
 
@@ -22,6 +22,16 @@ goal into a checklist of subtasks with one click.
 - 🍅 **Built-in Pomodoro timer** — focus a session on any task
 - 🖱️ **Drag-and-drop** reordering (mouse + touch)
 - 🌙 **Dark mode**
+
+## See it in action
+
+**Generate a whole to-do list from a project** — point it at a local folder or a GitHub repo and AI reads the docs, file tree, and issues to propose the tasks (they land as one parent task with the items as subtasks):
+
+![Generate a to-do list from a project folder or GitHub repo](docs/generate-demo.gif)
+
+**Break any goal into subtasks** with one click:
+
+![Break a goal into AI subtasks](docs/demo.gif)
 
 ## ✨ AI mode (optional)
 
