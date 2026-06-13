@@ -350,6 +350,11 @@ function TaskMasterApp() {
       // If already in Pomodoro mode, just start the timer
       setIsTimerActive(true);
     }
+
+    // Scroll to the top so the active task + countdown are in view
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
   
   // Stop timer and clear active task
