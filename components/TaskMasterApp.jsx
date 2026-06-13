@@ -1180,141 +1180,67 @@ function TaskMasterApp() {
         </div>
       </div>
 
-      {/* Timer */}
-      <div className="mb-4 p-4 border rounded">
-        <h2 className="text-lg font-medium mb-2">Pomodoro Timer</h2>
-        
-        {/* Active task display */}
-        {activeTask && (
-          <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200 text-blue-800">
-            <div className="font-medium">Working on:</div>
-            <div>{activeTask.text}</div>
-            {activeTask.subtaskId && (
-              <div className="text-sm text-blue-600">➤ {activeTask.subtaskText}</div>
-            )}
-            <button 
-              onClick={stopTimerAndClear}
-              className="mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
-            >
-              Clear
-            </button>
+      {/* Focus session (Pomodoro) */}
+      <div className="ql-focus mb-4">
+        <div className="ql-focus-main">
+          <div className="ql-focus-label">Focus session</div>
+          {activeTask ? (
+            <div className="ql-focus-now">
+              Working on <b>{activeTask.text}</b>
+              {activeTask.subtaskId && <span className="ql-focus-sub"> ➤ {activeTask.subtaskText}</span>}
+              <button onClick={stopTimerAndClear} className="ql-focus-clear">Clear</button>
+            </div>
+          ) : (
+            <div className="ql-focus-now ql-muted">No task selected — tap ⏱️ on a task, or just focus.</div>
+          )}
+
+          <div className="ql-modes">
+            <button onClick={() => changeTimerMode('pomodoro')} className={`ql-mode ${timerMode === 'pomodoro' ? 'active' : ''}`}>Pomodoro · 25</button>
+            <button onClick={() => changeTimerMode('shortBreak')} className={`ql-mode ${timerMode === 'shortBreak' ? 'active' : ''}`}>Short · 5</button>
+            <button onClick={() => changeTimerMode('longBreak')} className={`ql-mode ${timerMode === 'longBreak' ? 'active' : ''}`}>Long · 15</button>
+            <button onClick={() => changeTimerMode('custom')} className={`ql-mode ${timerMode === 'custom' ? 'active' : ''}`}>Custom</button>
           </div>
-        )}
-        
-        <div className="flex flex-wrap justify-center gap-2 mb-3">
-          <button 
-            onClick={() => changeTimerMode('pomodoro')}
-            className={`px-3 py-1 rounded ${timerMode === 'pomodoro' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          >
-            Pomodoro (25m)
-          </button>
-          <button 
-            onClick={() => changeTimerMode('shortBreak')}
-            className={`px-3 py-1 rounded ${timerMode === 'shortBreak' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          >
-            Short Break (5m)
-          </button>
-          <button 
-            onClick={() => changeTimerMode('longBreak')}
-            className={`px-3 py-1 rounded ${timerMode === 'longBreak' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          >
-            Long Break (15m)
-          </button>
-          <button 
-            onClick={() => changeTimerMode('custom')}
-            className={`px-3 py-1 rounded ${timerMode === 'custom' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-          >
-            Custom
-          </button>
+
+          {timerMode === 'custom' && (
+            <div className="ql-custom">
+              <input
+                type="number"
+                min="1"
+                max="120"
+                value={customTime}
+                onChange={(e) => setCustomTimer(parseInt(e.target.value) || 1)}
+                className="ql-custom-input"
+              />
+              <span>min</span>
+              <button onClick={() => setTimeLeft(customTime * 60)} className="ql-custom-apply">Apply</button>
+            </div>
+          )}
+
+          <div className="ql-quick">
+            {[10, 15, 20, 30, 45, 60].map((m) => (
+              <button
+                key={m}
+                onClick={() => { setCustomTime(m); setCustomTimer(m); changeTimerMode('custom'); }}
+                className="ql-quick-btn"
+              >
+                {m}m
+              </button>
+            ))}
+          </div>
         </div>
-        
-        {timerMode === 'custom' && (
-          <div className="mb-3 flex justify-center items-center gap-2">
-            <input
-              type="number"
-              min="1"
-              max="120"
-              value={customTime}
-              onChange={(e) => setCustomTimer(parseInt(e.target.value) || 1)}
-              className="w-16 p-1 border rounded text-center"
-            />
-            <span>minutes</span>
-            <button
-              onClick={() => setTimeLeft(customTime * 60)}
-              className="px-2 py-1 bg-green-500 text-white rounded text-sm"
-            >
-              Apply
-            </button>
+
+        <div className="ql-clock">
+          <div className={`ql-time ${isTimerActive ? 'running' : ''}`}>
+            {(() => { const [mm, ss] = formatTime(timeLeft).split(':'); return (<>{mm}<span className="ql-sep">:</span>{ss}</>); })()}
           </div>
-        )}
-        
-        <div className="text-center">
-          <div className={`text-4xl font-mono mb-3 ${isTimerActive ? 'pulse-animation' : ''}`}>
-            {formatTime(timeLeft)}
-          </div>
-          <div className="flex justify-center space-x-2">
+          <div className="ql-clock-row">
             {!isTimerActive ? (
-              <button 
-                onClick={startTimer}
-                className="px-4 py-2 rounded bg-green-600 text-white btn-animation"
-              >
-                Start
-              </button>
+              <button onClick={startTimer} className="ql-play">Start</button>
             ) : (
-              <button 
-                onClick={pauseTimer}
-                className="px-4 py-2 rounded bg-yellow-500 text-white btn-animation"
-              >
-                Pause
-              </button>
+              <button onClick={pauseTimer} className="ql-play running">Pause</button>
             )}
-            <button 
-              onClick={resetTimer}
-              className="px-4 py-2 rounded bg-gray-300 btn-animation"
-            >
-              Reset
-            </button>
+            <button onClick={resetTimer} className="ql-ghost">Reset</button>
           </div>
-        </div>
-        
-        {/* Quick duration buttons */}
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          <button 
-            onClick={() => { setCustomTime(10); setCustomTimer(10); changeTimerMode('custom'); }}
-            className="px-2 py-1 bg-gray-200 rounded text-sm btn-animation"
-          >
-            10m
-          </button>
-          <button 
-            onClick={() => { setCustomTime(15); setCustomTimer(15); changeTimerMode('custom'); }}
-            className="px-2 py-1 bg-gray-200 rounded text-sm btn-animation"
-          >
-            15m
-          </button>
-          <button 
-            onClick={() => { setCustomTime(20); setCustomTimer(20); changeTimerMode('custom'); }}
-            className="px-2 py-1 bg-gray-200 rounded text-sm btn-animation"
-          >
-            20m
-          </button>
-          <button 
-            onClick={() => { setCustomTime(30); setCustomTimer(30); changeTimerMode('custom'); }}
-            className="px-2 py-1 bg-gray-200 rounded text-sm btn-animation"
-          >
-            30m
-          </button>
-          <button 
-            onClick={() => { setCustomTime(45); setCustomTimer(45); changeTimerMode('custom'); }}
-            className="px-2 py-1 bg-gray-200 rounded text-sm btn-animation"
-          >
-            45m
-          </button>
-          <button 
-            onClick={() => { setCustomTime(60); setCustomTimer(60); changeTimerMode('custom'); }}
-            className="px-2 py-1 bg-gray-200 rounded text-sm btn-animation"
-          >
-            60m
-          </button>
         </div>
       </div>
 
