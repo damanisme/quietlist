@@ -2,6 +2,155 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   v2 redesign — Phase 1: token layer + fonts + atmosphere
+   (palette/fonts only; controls are restyled in later phases)
+   ============================================================ */
+:root {
+  --paper:     #f3ede1;
+  --paper-2:   #efe7d8;
+  --card:      #fbf7ee;
+  --card-edge: #e6dcc8;
+  --ink:       #211d18;
+  --ink-soft:  #5c5346;
+  --ink-faint: #948877;
+  --ember:     #c2502f;
+  --ember-deep:#a13f22;
+  --sage:      #5f7a59;
+  --gold:      #b8862f;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body:    "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono:    "Geist Mono", ui-monospace, monospace;
+}
+[data-theme="dark"] {
+  --paper:     #17140f;
+  --paper-2:   #120f0b;
+  --card:      #211c15;
+  --card-edge: #322a1f;
+  --ink:       #f0e9da;
+  --ink-soft:  #b8ac98;
+  --ink-faint: #80755f;
+  --ember:     #e3744f;
+  --ember-deep:#c2502f;
+  --sage:      #93ad88;
+  --gold:      #d6a94a;
+}
+
+html, body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  transition: background .5s ease, color .5s ease;
+}
+
+/* atmosphere: corner glow + faint grain */
+body { position: relative; min-height: 100vh; }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 85% -8%, color-mix(in srgb, var(--ember) 14%, transparent), transparent 60%),
+    radial-gradient(800px 700px at -10% 110%, color-mix(in srgb, var(--sage) 12%, transparent), transparent 55%);
+  transition: opacity .5s;
+}
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+[data-theme="dark"] body::after { mix-blend-mode: screen; opacity: .04; }
+/* keep app content above the atmosphere layers */
+body > * { position: relative; z-index: 1; }
+
+/* the Fraunces wordmark accent (used by the header brand) */
+.ql-wordmark { font-family: var(--font-display); font-weight: 600; letter-spacing: -.02em; }
+.ql-wordmark .q { color: var(--ember); font-style: italic; }
+
+/* ============================================================
+   v2 redesign — Phase 2: retire scattered color literals.
+   These rules are UNLAYERED, so they override Tailwind's
+   @layer utilities without touching component classNames.
+   Maps the app's hardcoded palette onto the design tokens and
+   fixes dark mode (gray text that never adapted) for free.
+   ============================================================ */
+
+/* warm every default border + give form fields a real surface */
+*, ::before, ::after { border-color: var(--card-edge); }
+input[type="text"], textarea, select {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--card-edge);
+}
+input[type="text"]::placeholder, textarea::placeholder { color: var(--ink-faint); }
+input[type="text"]:focus, textarea:focus, select:focus {
+  outline: none; border-color: color-mix(in srgb, var(--ember) 50%, var(--card-edge));
+}
+
+/* surfaces (grays) → tokens */
+.bg-white      { background: var(--card) !important; }
+.bg-gray-50    { background: transparent !important; }
+.bg-gray-100   { background: var(--paper-2) !important; }
+.bg-gray-200   { background: var(--paper-2) !important; }
+.bg-gray-300   { background: var(--card-edge) !important; }
+.bg-gray-800   { background: var(--card) !important; }
+.bg-gray-900   { background: var(--paper) !important; }
+
+/* ink text scale → tokens (this is what fixes dark mode) */
+.text-gray-800, .text-gray-700 { color: var(--ink) !important; }
+.text-gray-600 { color: var(--ink-soft) !important; }
+.text-gray-500, .text-gray-400 { color: var(--ink-faint) !important; }
+
+/* primary actions (blue) → ink */
+.bg-blue-600, .bg-blue-500 { background: var(--ink) !important; color: var(--paper) !important; }
+.border-blue-500 { border-color: var(--ink) !important; }
+
+/* AI actions (indigo / purple) → ember */
+.bg-indigo-600, .bg-indigo-500, .bg-purple-500 {
+  background: linear-gradient(180deg, var(--ember), var(--ember-deep)) !important; color: #fff !important;
+}
+.bg-indigo-50, .bg-purple-100 { background: color-mix(in srgb, var(--ember) 12%, transparent) !important; }
+.text-indigo-500, .text-purple-800 { color: var(--ember-deep) !important; }
+.border-indigo-500 { border-color: color-mix(in srgb, var(--ember) 45%, var(--card-edge)) !important; }
+
+/* "focus session" info box (blue tints) → ember tint */
+.bg-blue-50, .bg-blue-100, .bg-blue-200 { background: color-mix(in srgb, var(--ember) 12%, transparent) !important; }
+.text-blue-800, .text-blue-600 { color: var(--ember-deep) !important; }
+.border-blue-200 { border-color: color-mix(in srgb, var(--ember) 30%, var(--card-edge)) !important; }
+
+/* success / additive (green) → sage */
+.bg-green-500, .bg-green-600 { background: var(--sage) !important; color: #fff !important; }
+.text-green-600, .text-green-400 { color: var(--sage) !important; }
+
+/* priority chip tints → token tints */
+.bg-red-50,    .bg-red-900    { background: color-mix(in srgb, var(--ember) 14%, transparent) !important; }
+.text-red-600, .text-red-400  { color: var(--ember) !important; }
+.bg-yellow-50, .bg-yellow-900 { background: color-mix(in srgb, var(--gold) 16%, transparent) !important; }
+.text-yellow-600, .text-yellow-400 { color: var(--gold) !important; }
+.bg-green-50,  .bg-green-900  { background: color-mix(in srgb, var(--sage) 18%, transparent) !important; }
+
+/* ============================================================
+   v2 redesign — Phase 3: control polish
+   ============================================================ */
+
+/* mono numerals (Pomodoro timer) → Geist Mono */
+.font-mono { font-family: var(--font-mono) !important; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+
+/* task cards: real surface, hover lift, staggered load-in */
+.ql-card {
+  background: var(--card);
+  box-shadow: 0 1px 0 rgba(33,29,24,.04), 0 2px 6px rgba(33,29,24,.05);
+  animation: ql-pop .5s cubic-bezier(.2,.7,.2,1) both;
+}
+[data-theme="dark"] .ql-card { box-shadow: 0 1px 0 rgba(0,0,0,.2), 0 2px 8px rgba(0,0,0,.3); }
+.ql-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px -22px rgba(33,29,24,.45);
+  border-color: color-mix(in srgb, var(--ember) 22%, var(--card-edge));
+}
+[data-theme="dark"] .ql-card:hover { box-shadow: 0 22px 48px -24px rgba(0,0,0,.7); }
+@keyframes ql-pop { from { opacity: 0; transform: translateY(10px) scale(.99); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ql-card { animation: none !important; } }
+
 /* Animation keyframes */
 @keyframes pulse {
   0% { transform: scale(1); }

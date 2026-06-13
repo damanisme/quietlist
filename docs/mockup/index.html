@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QuietList — redesign mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  /* ---------- design tokens ---------- */
+  :root {
+    --paper:        #f3ede1;
+    --paper-2:      #efe7d8;
+    --card:         #fbf7ee;
+    --card-edge:    #e6dcc8;
+    --ink:          #211d18;
+    --ink-soft:     #5c5346;
+    --ink-faint:    #948877;
+    --ember:        #c2502f;
+    --ember-deep:   #a13f22;
+    --sage:         #5f7a59;
+    --sage-soft:    #e6ecdf;
+    --gold:         #b8862f;
+    --shadow-1:     0 1px 0 rgba(33,29,24,.04), 0 2px 6px rgba(33,29,24,.05);
+    --shadow-2:     0 18px 40px -22px rgba(33,29,24,.45);
+    --radius:       16px;
+    --radius-sm:    11px;
+    --rail-w:       268px;
+  }
+  [data-theme="dark"] {
+    --paper:        #17140f;
+    --paper-2:      #120f0b;
+    --card:         #211c15;
+    --card-edge:    #342d22;
+    --ink:          #f0e9da;
+    --ink-soft:     #b8ac98;
+    --ink-faint:    #80755f;
+    --ember:        #e3744f;
+    --ember-deep:   #c2502f;
+    --sage:         #93ad88;
+    --sage-soft:    #232a1f;
+    --gold:         #d6a94a;
+    --card-edge:    #322a1f;
+    --shadow-1:     0 1px 0 rgba(0,0,0,.2), 0 2px 8px rgba(0,0,0,.3);
+    --shadow-2:     0 22px 48px -24px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  body {
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.5;
+    transition: background .5s ease, color .5s ease;
+    position: relative;
+    overflow-x: hidden;
+  }
+  /* grain + glow atmosphere */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(900px 600px at 82% -8%, color-mix(in srgb, var(--ember) 16%, transparent), transparent 60%),
+      radial-gradient(800px 700px at -10% 110%, color-mix(in srgb, var(--sage) 14%, transparent), transparent 55%);
+    opacity: .9; transition: opacity .5s;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: multiply;
+  }
+  [data-theme="dark"] body::after { mix-blend-mode: screen; opacity: .04; }
+
+  .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 28px 26px 80px; }
+
+  /* ---------- top bar ---------- */
+  header.top {
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 30px;
+    animation: rise .7s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .brand { display: flex; align-items: baseline; gap: 11px; margin-right: auto; }
+  .mark {
+    font-family: "Fraunces", serif; font-weight: 600; font-size: 30px; letter-spacing: -.02em;
+    color: var(--ink); line-height: 1;
+  }
+  .mark .q {
+    color: var(--ember);
+    font-style: italic;
+    font-variation-settings: "SOFT" 60, "WONK" 1;
+  }
+  .tag {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; padding-top: 6px;
+  }
+  .ctrls { display: flex; align-items: center; gap: 10px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 13px; font-weight: 600; color: var(--ink-soft);
+    background: var(--card); border: 1px solid var(--card-edge);
+    padding: 8px 13px; border-radius: 100px; box-shadow: var(--shadow-1);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sage) 22%, transparent); }
+  .iconbtn {
+    width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer;
+    background: var(--card); border: 1px solid var(--card-edge); border-radius: 12px;
+    color: var(--ink-soft); font-size: 17px; box-shadow: var(--shadow-1);
+    transition: transform .2s, color .2s, border-color .2s;
+  }
+  .iconbtn:hover { transform: translateY(-2px); color: var(--ember); border-color: color-mix(in srgb, var(--ember) 45%, var(--card-edge)); }
+
+  /* ---------- layout ---------- */
+  .grid { display: grid; grid-template-columns: var(--rail-w) 1fr; gap: 26px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .rail { order: 2; } }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--card-edge);
+    border-radius: var(--radius); box-shadow: var(--shadow-1);
+  }
+
+  /* ---------- left rail ---------- */
+  .rail { display: flex; flex-direction: column; gap: 18px; animation: rise .8s .05s cubic-bezier(.2,.7,.2,1) both; }
+
+  .hero-copy { padding: 20px 20px 22px; }
+  .hero-copy h1 {
+    font-family: "Fraunces", serif; font-weight: 500; font-size: 27px; line-height: 1.12;
+    letter-spacing: -.015em; margin-bottom: 10px;
+  }
+  .hero-copy h1 em { font-style: italic; color: var(--ember); }
+  .hero-copy p { font-size: 13.5px; color: var(--ink-soft); }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--card-edge); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--card-edge); }
+  .stat { background: var(--card); padding: 16px 18px; }
+  .stat .n { font-family: "Geist Mono", monospace; font-size: 26px; font-weight: 500; letter-spacing: -.03em; }
+  .stat .n.ember { color: var(--ember); }
+  .stat .n.sage  { color: var(--sage); }
+  .stat .l { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; margin-top: 3px; }
+
+  .filters { padding: 8px; }
+  .filters .ft {
+    display: flex; align-items: center; gap: 11px; width: 100%;
+    padding: 11px 13px; border-radius: var(--radius-sm); cursor: pointer;
+    font-size: 14px; font-weight: 500; color: var(--ink-soft);
+    border: none; background: transparent; text-align: left;
+    transition: background .18s, color .18s;
+  }
+  .filters .ft:hover { background: var(--paper-2); color: var(--ink); }
+  .filters .ft.active { background: color-mix(in srgb, var(--ember) 12%, transparent); color: var(--ember-deep); }
+  [data-theme="dark"] .filters .ft.active { color: var(--ember); }
+  .filters .ft .cnt { margin-left: auto; font-family: "Geist Mono", monospace; font-size: 12px; color: var(--ink-faint); }
+  .filters .ic { width: 18px; text-align: center; }
+
+  .gen {
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    width: 100%; padding: 14px; cursor: pointer;
+    font-family: inherit; font-size: 14px; font-weight: 600; color: #fff;
+    background: linear-gradient(180deg, var(--ember), var(--ember-deep));
+    border: none; border-radius: var(--radius-sm);
+    box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--ember) 80%, transparent);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .gen:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -12px color-mix(in srgb, var(--ember) 85%, transparent); }
+
+  /* ---------- main column ---------- */
+  .main { display: flex; flex-direction: column; gap: 22px; animation: rise .8s .12s cubic-bezier(.2,.7,.2,1) both; }
+
+  /* focus / pomodoro */
+  .focus {
+    position: relative; overflow: hidden;
+    padding: 26px 28px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center;
+    background:
+      radial-gradient(420px 200px at 88% 10%, color-mix(in srgb, var(--ember) 14%, transparent), transparent 70%),
+      var(--card);
+  }
+  .focus .label { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); font-weight: 700; }
+  .focus .now { font-size: 14px; color: var(--ink-soft); margin-top: 8px; }
+  .focus .now b { color: var(--ink); font-weight: 600; }
+  .modes { display: flex; gap: 7px; margin-top: 16px; flex-wrap: wrap; }
+  .mode {
+    font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    padding: 7px 13px; border-radius: 100px; color: var(--ink-soft);
+    background: var(--paper-2); border: 1px solid var(--card-edge);
+    transition: all .18s;
+  }
+  .mode.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .clock { text-align: center; }
+  .time {
+    font-family: "Geist Mono", monospace; font-weight: 500; font-size: 62px; line-height: 1;
+    letter-spacing: -.04em; color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .time .sep { color: var(--ember); animation: blink 1.1s steps(1) infinite; }
+  .clock .row { display: flex; gap: 9px; justify-content: center; margin-top: 16px; }
+  .play {
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 10px 22px; border-radius: 100px; border: none; color: #fff;
+    background: linear-gradient(180deg, var(--sage), color-mix(in srgb, var(--sage) 80%, #000));
+    box-shadow: 0 10px 20px -10px color-mix(in srgb, var(--sage) 75%, transparent);
+    transition: transform .18s;
+  }
+  .play:hover { transform: translateY(-2px); }
+  .play.running { background: linear-gradient(180deg, var(--ember), var(--ember-deep)); box-shadow: 0 10px 20px -10px color-mix(in srgb,var(--ember) 75%, transparent); }
+  .ghost {
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 10px 18px; border-radius: 100px; color: var(--ink-soft);
+    background: transparent; border: 1px solid var(--card-edge); transition: all .18s;
+  }
+  .ghost:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+  /* add bar */
+  .addbar { padding: 12px; display: flex; gap: 10px; align-items: center; }
+  .addbar input {
+    flex: 1; font-family: inherit; font-size: 15px; color: var(--ink);
+    background: transparent; border: none; outline: none; padding: 10px 8px 10px 12px;
+  }
+  .addbar input::placeholder { color: var(--ink-faint); }
+  .prio-sel { display: flex; gap: 4px; }
+  .prio-sel button {
+    font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; cursor: pointer;
+    width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--card-edge);
+    background: var(--paper-2); color: var(--ink-faint); transition: all .15s;
+  }
+  .prio-sel button.on[data-p="high"] { background: color-mix(in srgb,var(--ember) 16%,transparent); color: var(--ember); border-color: color-mix(in srgb,var(--ember) 40%,transparent); }
+  .prio-sel button.on[data-p="med"]  { background: color-mix(in srgb,var(--gold) 18%,transparent);  color: var(--gold);  border-color: color-mix(in srgb,var(--gold) 40%,transparent); }
+  .prio-sel button.on[data-p="low"]  { background: var(--sage-soft); color: var(--sage); border-color: color-mix(in srgb,var(--sage) 35%,transparent); }
+  .add-btn {
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 10px 18px; border-radius: 11px; border: none; color: var(--paper);
+    background: var(--ink); transition: transform .18s, opacity .2s;
+  }
+  .add-btn:hover { transform: translateY(-2px); }
+  .ai-btn {
+    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 10px 16px; border-radius: 11px; color: var(--ember);
+    background: color-mix(in srgb,var(--ember) 12%,transparent);
+    border: 1px solid color-mix(in srgb,var(--ember) 30%,transparent); transition: all .18s; white-space: nowrap;
+  }
+  .ai-btn:hover { background: color-mix(in srgb,var(--ember) 18%,transparent); transform: translateY(-2px); }
+
+  /* task list */
+  .list-head { display: flex; align-items: baseline; gap: 12px; padding: 4px 6px; }
+  .list-head h2 { font-family: "Fraunces", serif; font-weight: 500; font-size: 21px; letter-spacing: -.01em; }
+  .list-head span { font-family: "Geist Mono", monospace; font-size: 12px; color: var(--ink-faint); }
+  .list { display: flex; flex-direction: column; gap: 11px; }
+
+  .task {
+    background: var(--card); border: 1px solid var(--card-edge); border-radius: var(--radius);
+    box-shadow: var(--shadow-1); overflow: hidden; transition: transform .2s, box-shadow .2s, border-color .2s;
+    animation: pop .5s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .task:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: color-mix(in srgb, var(--ember) 22%, var(--card-edge)); }
+  .task.parent { border-color: color-mix(in srgb, var(--ember) 30%, var(--card-edge)); }
+  .trow { display: flex; align-items: center; gap: 14px; padding: 15px 17px; }
+  .grip { color: var(--ink-faint); cursor: grab; font-size: 15px; opacity: .5; letter-spacing: -2px; }
+
+  .check {
+    appearance: none; width: 22px; height: 22px; flex: none; cursor: pointer;
+    border: 2px solid var(--ink-faint); border-radius: 7px; background: transparent;
+    display: grid; place-items: center; transition: all .2s;
+  }
+  .check:hover { border-color: var(--sage); }
+  .check:checked { background: var(--sage); border-color: var(--sage); }
+  .check:checked::after { content: "✓"; color: #fff; font-size: 13px; font-weight: 700; }
+
+  .tbody { flex: 1; min-width: 0; }
+  .ttitle { font-size: 15.5px; font-weight: 600; color: var(--ink); letter-spacing: -.005em; transition: color .2s; }
+  .task.done .ttitle { color: var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--ink-faint); }
+  .tmeta { display: flex; align-items: center; gap: 9px; margin-top: 5px; }
+  .chip { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; }
+  .chip.high { background: color-mix(in srgb,var(--ember) 14%,transparent); color: var(--ember); }
+  .chip.med  { background: color-mix(in srgb,var(--gold) 16%,transparent);  color: var(--gold); }
+  .chip.low  { background: var(--sage-soft); color: var(--sage); }
+  .chip.ai   { background: color-mix(in srgb,var(--ember) 12%,transparent); color: var(--ember-deep); display: inline-flex; gap: 4px; }
+  [data-theme="dark"] .chip.ai { color: var(--ember); }
+  .sub-prog { font-family: "Geist Mono", monospace; font-size: 12px; color: var(--ink-faint); }
+  .notes-i { color: var(--ink-faint); font-size: 13px; }
+
+  .expand { color: var(--ink-faint); cursor: pointer; font-size: 13px; padding: 6px; border-radius: 8px; transition: all .18s; background: transparent; border: none; }
+  .expand:hover { background: var(--paper-2); color: var(--ink); }
+  .expand .car { display: inline-block; transition: transform .25s; }
+  .task.open .expand .car { transform: rotate(90deg); }
+
+  .subs { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; border-top: 0 solid var(--card-edge); }
+  .task.open .subs { grid-template-rows: 1fr; border-top: 1px solid var(--card-edge); }
+  .subs-in { overflow: hidden; }
+  .sub {
+    display: flex; align-items: center; gap: 12px; padding: 11px 17px 11px 46px;
+    border-bottom: 1px solid color-mix(in srgb, var(--card-edge) 55%, transparent);
+    font-size: 14px; color: var(--ink-soft);
+  }
+  .sub:last-child { border-bottom: none; }
+  .sub .scheck {
+    appearance: none; width: 18px; height: 18px; flex: none; cursor: pointer;
+    border: 2px solid var(--ink-faint); border-radius: 6px; display: grid; place-items: center; transition: all .2s;
+  }
+  .sub .scheck:checked { background: var(--ember); border-color: var(--ember); }
+  .sub .scheck:checked::after { content: "✓"; color: #fff; font-size: 11px; font-weight: 700; }
+  .sub.done span { text-decoration: line-through; color: var(--ink-faint); }
+
+  /* generate panel (slide-down) */
+  .genpanel {
+    display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease, margin .35s;
+  }
+  .genpanel.open { grid-template-rows: 1fr; margin-bottom: 0; }
+  .genpanel-in { overflow: hidden; }
+  .genbox { padding: 20px 22px; }
+  .genbox h3 { font-family: "Fraunces", serif; font-weight: 500; font-size: 19px; margin-bottom: 4px; }
+  .genbox p { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; }
+  .gentabs { display: flex; gap: 6px; margin-bottom: 12px; }
+  .gentab { font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 8px 14px; border-radius: 100px; border: 1px solid var(--card-edge); background: var(--paper-2); color: var(--ink-soft); }
+  .gentab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .geninput { display: flex; gap: 10px; }
+  .geninput input { flex: 1; font-family: "Geist Mono", monospace; font-size: 13px; color: var(--ink); background: var(--paper-2); border: 1px solid var(--card-edge); border-radius: 11px; padding: 12px 14px; outline: none; }
+  .geninput input:focus { border-color: color-mix(in srgb,var(--ember) 45%,var(--card-edge)); }
+
+  footer { text-align: center; margin-top: 46px; font-size: 12.5px; color: var(--ink-faint); }
+  footer code { font-family: "Geist Mono", monospace; color: var(--ink-soft); }
+
+  /* animations */
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes pop  { from { opacity: 0; transform: translateY(10px) scale(.99); } to { opacity: 1; transform: none; } }
+  @keyframes blink { 50% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <span class="mark"><span class="q">Quiet</span>List</span>
+        <span class="tag">v2 · concept</span>
+      </div>
+      <div class="ctrls">
+        <span class="pill"><span class="dot"></span> AI · local &amp; private</span>
+        <button class="iconbtn" id="theme" title="Toggle theme">◐</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT RAIL -->
+      <aside class="rail">
+        <div class="panel hero-copy">
+          <h1>The to-do list that <em>keeps quiet.</em></h1>
+          <p>No account. No cloud. Your tasks never leave your browser.</p>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="n ember" id="s-open">5</div><div class="l">Open</div></div>
+          <div class="stat"><div class="n sage" id="s-done">2</div><div class="l">Done today</div></div>
+          <div class="stat"><div class="n" id="s-focus">3</div><div class="l">Focus blocks</div></div>
+          <div class="stat"><div class="n">71<span style="font-size:16px">%</span></div><div class="l">This week</div></div>
+        </div>
+
+        <div class="panel filters">
+          <button class="ft active"><span class="ic">◎</span> All tasks <span class="cnt">7</span></button>
+          <button class="ft"><span class="ic">✶</span> Priority <span class="cnt">2</span></button>
+          <button class="ft"><span class="ic">◷</span> In focus <span class="cnt">1</span></button>
+          <button class="ft"><span class="ic">✓</span> Completed <span class="cnt">2</span></button>
+        </div>
+
+        <button class="gen" id="genBtn">✦ Generate from a project</button>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <!-- focus -->
+        <section class="panel focus">
+          <div>
+            <div class="label">Focus session</div>
+            <div class="now">Working on <b id="focusTask">Refine onboarding copy</b></div>
+            <div class="modes">
+              <button class="mode active" data-min="25">Pomodoro · 25</button>
+              <button class="mode" data-min="5">Short · 5</button>
+              <button class="mode" data-min="15">Long · 15</button>
+            </div>
+          </div>
+          <div class="clock">
+            <div class="time" id="time">25<span class="sep">:</span>00</div>
+            <div class="row">
+              <button class="play" id="play">Start</button>
+              <button class="ghost" id="reset">Reset</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- generate panel -->
+        <div class="genpanel" id="genPanel">
+          <div class="genpanel-in">
+            <div class="panel genbox">
+              <h3>✦ Let AI read a project and propose the tasks</h3>
+              <p>Point it at a local folder or a GitHub repo — it reads the docs, README, file tree and open issues, then drafts your next steps as subtasks.</p>
+              <div class="gentabs">
+                <button class="gentab active" data-g="folder">📁 Local folder</button>
+                <button class="gentab" data-g="github">🐙 GitHub repo</button>
+              </div>
+              <div class="geninput">
+                <input id="genInput" value="~/workspaces/ikigai" />
+                <button class="add-btn" id="genRun">Generate</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- add bar -->
+        <div class="panel addbar">
+          <input id="newTask" placeholder="What needs your attention?" />
+          <div class="prio-sel" id="prio">
+            <button data-p="high">H</button>
+            <button data-p="med" class="on">M</button>
+            <button data-p="low">L</button>
+          </div>
+          <button class="ai-btn" id="aiAdd">✦ AI subtasks</button>
+          <button class="add-btn" id="addBtn">Add</button>
+        </div>
+
+        <!-- list -->
+        <div class="list-head"><h2>Today</h2><span id="listCount">7 items</span></div>
+        <div class="list" id="list"><!-- tasks injected --></div>
+      </main>
+    </div>
+
+    <footer>
+      Mockup — same features as <code>quietlist.vercel.app</code>, redesigned. Click around: timer, add tasks, check things off, expand subtasks, ✦ generate, ◐ theme.
+    </footer>
+  </div>
+
+<script>
+  // ---------- seed data ----------
+  const seed = [
+    { t:"Refine onboarding copy", p:"high", done:false, open:true, subs:[
+        {t:"Trim the hero to one sentence", d:true},
+        {t:"Rewrite the empty-state line", d:false},
+        {t:"A/B the primary CTA label", d:false},
+    ]},
+    { t:"Ship the privacy explainer page", p:"med", done:false, open:false, subs:[
+        {t:"Draft the 'no cloud' section", d:false},
+        {t:"Add the data-flow diagram", d:false},
+    ]},
+    { t:"Record a 15s demo GIF", p:"low", done:false, open:false, subs:[] },
+    { t:"Answer this week's GitHub issues", p:"high", done:false, open:false, subs:[
+        {t:"#12 dark-mode flash on load", d:false},
+        {t:"#15 keyboard shortcut for new task", d:false},
+    ]},
+    { t:"Post to r/selfhosted", p:"med", done:false, open:false, subs:[] },
+    { t:"Set up the favicon + OG image", p:"low", done:true, open:false, subs:[] },
+    { t:"Wire the local Ollama provider", p:"med", done:true, open:false, subs:[] },
+  ];
+
+  const PR = { high:"high", med:"med", low:"low" };
+  let curPrio = "med";
+  const $ = s => document.querySelector(s);
+  const list = $("#list");
+
+  function render(){
+    list.innerHTML = "";
+    seed.forEach((task, i) => {
+      const doneSubs = task.subs.filter(s=>s.d).length;
+      const hasSubs = task.subs.length > 0;
+      const el = document.createElement("div");
+      el.className = "task" + (task.done?" done":"") + (task.open?" open":"") + (hasSubs&&task.aiGen?" parent":"");
+      el.style.animationDelay = (i*40)+"ms";
+      el.innerHTML = `
+        <div class="trow">
+          <span class="grip">⠿</span>
+          <input type="checkbox" class="check" ${task.done?"checked":""} data-i="${i}">
+          <div class="tbody">
+            <div class="ttitle">${task.t}</div>
+            <div class="tmeta">
+              <span class="chip ${task.p}">${task.p}</span>
+              ${task.aiGen?`<span class="chip ai">✦ AI</span>`:""}
+              ${hasSubs?`<span class="sub-prog">${doneSubs}/${task.subs.length} subtasks</span>`:""}
+              ${task.notes?`<span class="notes-i">✎ notes</span>`:""}
+            </div>
+          </div>
+          ${hasSubs?`<button class="expand" data-exp="${i}"><span class="car">›</span></button>`:""}
+        </div>
+        ${hasSubs?`<div class="subs"><div class="subs-in">
+          ${task.subs.map((s,j)=>`
+            <label class="sub ${s.d?"done":""}">
+              <input type="checkbox" class="scheck" ${s.d?"checked":""} data-i="${i}" data-j="${j}">
+              <span>${s.t}</span>
+            </label>`).join("")}
+        </div></div>`:""}
+      `;
+      list.appendChild(el);
+    });
+    // counts
+    const open = seed.filter(t=>!t.done).length;
+    const done = seed.filter(t=>t.done).length;
+    $("#s-open").textContent = open;
+    $("#s-done").textContent = done;
+    $("#listCount").textContent = seed.length + " items";
+    bind();
+  }
+
+  function bind(){
+    document.querySelectorAll(".check").forEach(c=>c.onchange=e=>{
+      seed[+e.target.dataset.i].done = e.target.checked; render();
+    });
+    document.querySelectorAll(".scheck").forEach(c=>c.onchange=e=>{
+      seed[+e.target.dataset.i].subs[+e.target.dataset.j].d = e.target.checked; render();
+    });
+    document.querySelectorAll(".expand").forEach(b=>b.onclick=e=>{
+      seed[+e.currentTarget.dataset.exp].open = !seed[+e.currentTarget.dataset.exp].open; render();
+    });
+  }
+
+  // ---------- add task ----------
+  $("#prio").onclick = e => {
+    if(e.target.dataset.p){
+      curPrio = e.target.dataset.p;
+      document.querySelectorAll("#prio button").forEach(b=>b.classList.toggle("on", b===e.target));
+    }
+  };
+  function addTask(withAI){
+    const inp = $("#newTask"); const v = inp.value.trim(); if(!v) { inp.focus(); return; }
+    const subs = withAI ? [
+      {t:"Break down the first concrete step", d:false},
+      {t:"Identify what could block it", d:false},
+      {t:"Define what 'done' looks like", d:false},
+    ] : [];
+    seed.unshift({ t:v, p:curPrio, done:false, open:withAI, subs, aiGen:withAI });
+    inp.value=""; render();
+  }
+  $("#addBtn").onclick = ()=>addTask(false);
+  $("#aiAdd").onclick  = ()=>addTask(true);
+  $("#newTask").addEventListener("keydown", e=>{ if(e.key==="Enter") addTask(false); });
+
+  // ---------- generate panel ----------
+  $("#genBtn").onclick = ()=> $("#genPanel").classList.toggle("open");
+  document.querySelectorAll(".gentab").forEach(t=>t.onclick=()=>{
+    document.querySelectorAll(".gentab").forEach(x=>x.classList.toggle("active", x===t));
+    $("#genInput").value = t.dataset.g==="github" ? "damanisme/quietlist" : "~/workspaces/ikigai";
+  });
+  $("#genRun").onclick = ()=>{
+    const btn = $("#genRun"); btn.textContent = "Reading…"; btn.style.opacity=".7";
+    setTimeout(()=>{
+      const generated = {
+        t:"📂 ikigai — proposed next steps", p:"high", done:false, open:true, aiGen:true, subs:[
+          {t:"Answer: what do you love?", d:false},
+          {t:"Answer: what are you great at?", d:false},
+          {t:"Answer: what does the world need?", d:false},
+          {t:"Answer: what can you be paid for?", d:false},
+          {t:"Map the overlaps between all four", d:false},
+        ]
+      };
+      seed.unshift(generated); btn.textContent="Generate"; btn.style.opacity="1";
+      $("#genPanel").classList.remove("open"); render();
+    }, 900);
+  };
+
+  // ---------- theme ----------
+  $("#theme").onclick = ()=>{
+    const h = document.documentElement;
+    h.dataset.theme = h.dataset.theme==="dark" ? "light" : "dark";
+  };
+
+  // ---------- pomodoro ----------
+  let total = 25*60, left = total, timer=null, running=false;
+  const fmt = s => `${String(Math.floor(s/60)).padStart(2,"0")}<span class="sep">:</span>${String(s%60).padStart(2,"0")}`;
+  function paint(){ $("#time").innerHTML = fmt(left); }
+  $("#play").onclick = ()=>{
+    running = !running;
+    const b = $("#play");
+    b.textContent = running ? "Pause" : "Start";
+    b.classList.toggle("running", running);
+    if(running){ timer = setInterval(()=>{ if(left>0){ left--; paint(); } else { clearInterval(timer); running=false; b.textContent="Start"; b.classList.remove("running"); } }, 1000); }
+    else clearInterval(timer);
+  };
+  $("#reset").onclick = ()=>{ clearInterval(timer); running=false; left=total; paint(); $("#play").textContent="Start"; $("#play").classList.remove("running"); };
+  document.querySelectorAll(".mode").forEach(m=>m.onclick=()=>{
+    document.querySelectorAll(".mode").forEach(x=>x.classList.toggle("active", x===m));
+    clearInterval(timer); running=false; total=+m.dataset.min*60; left=total; paint();
+    $("#play").textContent="Start"; $("#play").classList.remove("running");
+  });
+
+  render(); paint();
+</script>
+</body>
+</html>
