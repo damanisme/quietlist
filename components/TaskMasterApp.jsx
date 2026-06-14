@@ -124,7 +124,15 @@ function TaskMasterApp() {
   const [aiLoadingId, setAiLoadingId] = useState(null); // task id (or '__new__') currently generating
   const [aiMessage, setAiMessage] = useState(null); // { type: 'error'|'success', text }
   const [generateOpen, setGenerateOpen] = useState(false);
-  
+  const [showTopBtn, setShowTopBtn] = useState(false);
+
+  // Smooth-scroll to a section by id
+  const scrollToId = (id) => {
+    if (typeof document !== 'undefined') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // Timer durations (in minutes)
   const timerDurations = {
     pomodoro: 25,
@@ -170,6 +178,14 @@ function TaskMasterApp() {
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
   }, [darkMode]);
+
+  // Show the floating "back to top" button once the user scrolls down
+  useEffect(() => {
+    const onScroll = () => setShowTopBtn(window.scrollY > 220);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   
   // Load data from localStorage only after component is mounted on client
   useEffect(() => {
@@ -1159,6 +1175,13 @@ function TaskMasterApp() {
         </div>
       </div>
 
+      {/* Quick navigation */}
+      <div className="ql-nav">
+        <button onClick={() => scrollToId('ql-focus-section')} className="ql-nav-btn"><span className="ql-nav-ic">◷</span> Focus</button>
+        <button onClick={() => scrollToId('ql-add-section')} className="ql-nav-btn"><span className="ql-nav-ic">＋</span> Add task</button>
+        <button onClick={() => scrollToId('ql-tasks-section')} className="ql-nav-btn"><span className="ql-nav-ic">☰</span> Tasks</button>
+      </div>
+
       {/* Search */}
       <div className="mb-4">
         <div className="relative">
@@ -1181,7 +1204,7 @@ function TaskMasterApp() {
       </div>
 
       {/* Focus session (Pomodoro) */}
-      <div className="ql-focus mb-4">
+      <div id="ql-focus-section" className="ql-focus mb-4">
         <div className="ql-focus-main">
           <div className="ql-focus-label">Focus session</div>
           {activeTask ? (
@@ -1245,7 +1268,7 @@ function TaskMasterApp() {
       </div>
 
       {/* Add Task Form */}
-      <div className="mb-4 p-4 border rounded">
+      <div id="ql-add-section" className="mb-4 p-4 border rounded">
         <h2 className="text-lg font-medium mb-2">Add New Task</h2>
         <div className="flex flex-col gap-2">
           <input
@@ -1291,7 +1314,7 @@ function TaskMasterApp() {
       </div>
 
       {/* Task List with drag and drop and notes - ENHANCED VERSION */}
-      <div>
+      <div id="ql-tasks-section">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-medium">
             {searchTerm ? `Search Results (${filteredTasks.length})` : `Tasks (${tasks.length})`}
@@ -1759,7 +1782,12 @@ function TaskMasterApp() {
           )}
         </div>
       </div>
-      
+
+      {/* Floating back-to-top */}
+      {isClient && showTopBtn && (
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="ql-fab" title="Back to top">↑</button>
+      )}
+
       {/* CSS for drag and drop */}
       <style jsx global>{`
         .dragging {

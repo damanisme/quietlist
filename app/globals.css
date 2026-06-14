@@ -232,6 +232,31 @@ input[type="text"]:focus, textarea:focus, select:focus {
 }
 .ql-ghost:hover { color: var(--ink); border-color: var(--ink-faint); }
 
+/* ============================================================
+   Quick section navigation + floating back-to-top
+   ============================================================ */
+.ql-nav { display: flex; gap: 8px; margin: -4px 0 18px; flex-wrap: wrap; }
+.ql-nav-btn {
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 100px; color: var(--ink-soft);
+  background: var(--card); border: 1px solid var(--card-edge);
+  box-shadow: 0 1px 0 rgba(33,29,24,.04); transition: all .18s;
+}
+.ql-nav-btn:hover { transform: translateY(-2px); color: var(--ember); border-color: color-mix(in srgb, var(--ember) 45%, var(--card-edge)); }
+.ql-nav-btn .ql-nav-ic { font-size: 14px; opacity: .85; }
+
+.ql-fab {
+  position: fixed; right: 22px; bottom: 22px; z-index: 40;
+  width: 46px; height: 46px; border-radius: 50%; cursor: pointer; border: none;
+  color: #fff; font-size: 19px; line-height: 1;
+  background: linear-gradient(180deg, var(--ember), var(--ember-deep));
+  box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--ember) 80%, transparent);
+  animation: ql-fab-in .25s ease both; transition: transform .18s;
+}
+.ql-fab:hover { transform: translateY(-3px); }
+@keyframes ql-fab-in { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
+
 /* Animation keyframes */
 @keyframes pulse {
   0% { transform: scale(1); }
