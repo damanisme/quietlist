@@ -171,9 +171,16 @@ input[type="text"]:focus, textarea:focus, select:focus {
 .ql-focus-now b { color: var(--ink); font-weight: 600; }
 .ql-focus-now.ql-muted { color: var(--ink-faint); }
 .ql-focus-sub { color: var(--ember-deep); }
+.ql-focus-actions { display: inline-flex; gap: 6px; margin-left: 10px; vertical-align: middle; }
+.ql-focus-done {
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  padding: 3px 12px; border-radius: 100px; color: #fff; border: none;
+  background: var(--sage); transition: transform .18s, filter .18s;
+}
+.ql-focus-done:hover { transform: translateY(-1px); filter: brightness(1.06); }
 .ql-focus-clear {
-  margin-left: 10px; font-size: 12px; font-weight: 600; cursor: pointer;
-  padding: 2px 10px; border-radius: 100px; color: var(--ink-soft);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  padding: 3px 12px; border-radius: 100px; color: var(--ink-soft);
   background: transparent; border: 1px solid var(--card-edge); transition: all .18s;
 }
 .ql-focus-clear:hover { color: var(--ember); border-color: color-mix(in srgb, var(--ember) 45%, var(--card-edge)); }

@@ -378,6 +378,20 @@ function TaskMasterApp() {
     pauseTimer();
     setActiveTask(null);
   };
+
+  // Complete the focused task/subtask straight from the Pomodoro card, then clear focus.
+  // Only ever marks done (never un-completes an already-done item).
+  const completeActiveTask = () => {
+    if (!activeTask) return;
+    const task = tasks.find(t => t.id === activeTask.id);
+    if (activeTask.subtaskId) {
+      const sub = task?.subtasks?.find(s => s.id === activeTask.subtaskId);
+      if (sub && !sub.done) toggleSubtask(activeTask.id, activeTask.subtaskId);
+    } else if (task && !task.done) {
+      toggleTask(activeTask.id);
+    }
+    stopTimerAndClear();
+  };
   
   // Toggle dark mode
   const toggleDarkMode = () => setDarkMode(!darkMode);
@@ -1211,7 +1225,10 @@ function TaskMasterApp() {
             <div className="ql-focus-now">
               Working on <b>{activeTask.text}</b>
               {activeTask.subtaskId && <span className="ql-focus-sub"> ➤ {activeTask.subtaskText}</span>}
-              <button onClick={stopTimerAndClear} className="ql-focus-clear">Clear</button>
+              <span className="ql-focus-actions">
+                <button onClick={completeActiveTask} className="ql-focus-done" title="Mark this task complete">✓ Complete</button>
+                <button onClick={stopTimerAndClear} className="ql-focus-clear">Clear</button>
+              </span>
             </div>
           ) : (
             <div className="ql-focus-now ql-muted">No task selected — tap ⏱️ on a task, or just focus.</div>
